@@ -44,6 +44,10 @@ export const helloWorld = functions.https.onRequest(async (_, response) => {
                 type: "mrkdwn",
                 text: `*日付:*\n${now.format("YYYY-MM-DD HH:mm:ss")}`,
               },
+              {
+                type: "mrkdwn",
+                text: "*情報元:*\n<https://www.bk.mufg.jp/|三菱UFJ銀行>",
+              },
             ],
           },
           {
