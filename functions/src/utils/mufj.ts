@@ -1,4 +1,4 @@
-import { launch } from "puppeteer";
+import { launch } from "../services/puppeteer";
 
 const mufjType: Record<string, { id: string; name: string }> = {
   allianceBernstein: {
