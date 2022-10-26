@@ -10,6 +10,7 @@ type MufjType = keyof typeof mufjType;
 
 type MufjData = {
   name: string;
+  url: string;
   basePrice: string | null;
   dayChange: string | null;
 };
@@ -21,7 +22,8 @@ export const fetchForMufj = async (type: MufjType): Promise<MufjData> => {
 
   const browser = await launch();
   const page = await browser.newPage();
-  await page.goto(`https://fs.bk.mufg.jp/webasp/mufg/fund/detail/${id}.html`);
+  const targetUrl = `https://fs.bk.mufg.jp/webasp/mufg/fund/detail/${id}.html`;
+  await page.goto(targetUrl);
 
   // 基準価額
   const basePriceSelector = "#kijyunKagaku";
@@ -45,6 +47,7 @@ export const fetchForMufj = async (type: MufjType): Promise<MufjData> => {
 
   return {
     name,
+    url: targetUrl,
     basePrice,
     dayChange,
   };
