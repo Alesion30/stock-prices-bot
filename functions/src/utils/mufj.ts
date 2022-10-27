@@ -1,32 +1,41 @@
-import { Page } from "puppeteer";
+import { Dayjs } from "dayjs";
+import { Browser } from "puppeteer";
+import { getNow } from "../services/dayjs";
 import { castSafetyNumber } from "./castSafetyNumber";
 
-export const mufjType: Record<string, { id: string; name: string }> = {
+export type MufjBrand = "allianceBernstein" | "emaxis";
+export const mufjBrands: Record<MufjBrand, { id: string; name: string }> = {
   allianceBernstein: {
     id: "m03920420",
     name: "アライアンス・バーンスタイン・米国成長株投信Ｄコース",
   },
+  emaxis: {
+    id: "m00342620",
+    name: "ｅＭＡＸＩＳ 日経225インデックス",
+  },
 } as const;
-type MufjType = keyof typeof mufjType;
 
 type MufjData = {
   name: string;
   url: string;
   basePrice: number | null;
   dayChange: number | null;
+  time: Dayjs;
 };
 
 type FetchMufjOptions = {
-  page: Page;
+  browser: Browser;
 };
 
 // 三菱UFJ銀行
 // https://fs.bk.mufg.jp
 export const fetchMufj = async (
-  type: MufjType,
-  { page }: FetchMufjOptions,
+  type: MufjBrand,
+  { browser }: FetchMufjOptions,
 ): Promise<MufjData> => {
-  const { id, name } = mufjType[type];
+  const page = await browser.newPage();
+
+  const { id, name } = mufjBrands[type];
   const targetUrl = `https://fs.bk.mufg.jp/webasp/mufg/fund/detail/${id}.html`;
   await page.goto(targetUrl);
 
@@ -53,6 +62,7 @@ export const fetchMufj = async (
     url: targetUrl,
     basePrice: castBasePrice(basePrice),
     dayChange: castDayChange(dayChange),
+    time: getNow(),
   };
 };
 

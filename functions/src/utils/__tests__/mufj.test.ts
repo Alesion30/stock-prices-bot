@@ -1,11 +1,11 @@
-import { castBasePrice, castDayChange, fetchMufj, mufjType } from "../mufj";
+import { castBasePrice, castDayChange, fetchMufj, mufjBrands } from "../mufj";
 
 describe("fetchMufj", () => {
   jest.setTimeout(10000);
 
   it("アライアンス・バーンスタイン・米国成長株投信Ｄコース", async () => {
-    const result = await fetchMufj("allianceBernstein", { page });
-    expect(result.name).toBe(mufjType["allianceBernstein"].name);
+    const result = await fetchMufj("allianceBernstein", { browser });
+    expect(result.name).toBe(mufjBrands["allianceBernstein"].name);
     expect(typeof result.basePrice).toBe("number");
     expect(typeof result.dayChange).toBe("number");
   });

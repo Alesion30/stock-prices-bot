@@ -1,21 +1,23 @@
 import * as functions from "firebase-functions";
 import { fetchMufj } from "./utils/mufj";
-import { getNow } from "./services/dayjs";
-import { postMessage } from "./services/slack";
+import { Message, postMessage } from "./services/slack";
 import { launch } from "./services/puppeteer";
+import { env, Workspace } from "./env";
+import { Browser } from "puppeteer";
 
-const postToSlack = async () => {
-  const browser = await launch();
-  const page = await browser.newPage();
+const postToSlackAllWorkspaces = async (browser: Browser) => {
+  const workspaces = Object.keys(env) as Workspace[];
+  await Promise.all(workspaces.map((key) => postToSlack(key, browser)));
+};
 
-  const { name, url, basePrice, dayChange } = await fetchMufj(
-    "allianceBernstein",
-    { page },
+const postToSlack = async (workspace: Workspace, browser: Browser) => {
+  const { slackWebhookUrl, brands } = env[workspace];
+  const results = await Promise.all(
+    brands.map((brand) => fetchMufj(brand, { browser })),
   );
-  const now = getNow();
-
-  await postMessage({
-    message: [
+  const message = results.reduce<Message>((message, result) => {
+    const { name, url, basePrice, dayChange, time } = result;
+    const m: Message = [
       {
         type: "header",
         text: {
@@ -44,7 +46,7 @@ const postToSlack = async () => {
         fields: [
           {
             type: "mrkdwn",
-            text: `*日付:*\n${now.format("YYYY-MM-DD HH:mm:ss")}`,
+            text: `*日付:*\n${time.format("YYYY-MM-DD HH:mm:ss")}`,
           },
           {
             type: "mrkdwn",
@@ -59,10 +61,14 @@ const postToSlack = async () => {
           text: `<${url}|View more>`,
         },
       },
-    ],
-  });
+    ];
+    return message.concat(m);
+  }, []);
 
-  await browser.close();
+  await postMessage({
+    url: slackWebhookUrl,
+    message,
+  });
 };
 
 const runtimeOpts: functions.RuntimeOptions = {
@@ -74,12 +80,18 @@ export const scheduledPostToSlack = functions
   .region("asia-northeast1")
   .runWith(runtimeOpts)
   .pubsub.schedule("0 1-13/3 * * *") // 9時-21時で3時間おきに実行
-  .onRun(postToSlack);
+  .onRun(async () => {
+    const browser = await launch();
+    await postToSlackAllWorkspaces(browser);
+    await browser.close();
+  });
 
 export const postToSlackFunction = functions
   .region("asia-northeast1")
   .runWith(runtimeOpts)
   .https.onRequest(async (_, response) => {
-    await postToSlack();
+    const browser = await launch();
+    await postToSlack("qdaip2p", browser);
+    await browser.close();
     response.send("Hello from Firebase!");
   });

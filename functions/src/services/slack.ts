@@ -1,8 +1,11 @@
 import { instance } from "./gaxios";
 
 type PostMessageProps = {
-  message: Block[];
+  url: string;
+  message: Message;
 };
+
+export type Message = Block[];
 
 type Block =
   | {
@@ -28,10 +31,10 @@ type Text =
       emoji?: boolean;
     };
 
-export const postMessage = async ({ message }: PostMessageProps) => {
+export const postMessage = async ({ url, message }: PostMessageProps) => {
   await instance.request({
     method: "POST",
-    url: process.env.SLACK_WEBHOOK_URL,
+    url,
     data: {
       blocks: message,
     },
