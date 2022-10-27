@@ -4,6 +4,7 @@ import { Message, postMessage } from "./services/slack";
 import { launch } from "./services/puppeteer";
 import { env, Workspace } from "./env";
 import { Browser } from "puppeteer";
+import { getNow } from "./services/dayjs";
 
 const postToSlackAllWorkspaces = async (browser: Browser) => {
   const workspaces = Object.keys(env) as Workspace[];
@@ -65,6 +66,18 @@ const postToSlack = async (workspace: Workspace, browser: Browser) => {
     return message.concat(m);
   }, []);
 
+  await postMessage({
+    url: slackWebhookUrl,
+    message: [
+      {
+        type: "section",
+        text: {
+          type: "plain_text",
+          text: `${getNow().format("YYYY-MM-DD HH:mm")}の株価をお知らせします`,
+        },
+      },
+    ],
+  });
   await postMessage({
     url: slackWebhookUrl,
     message,
