@@ -1,14 +1,13 @@
 import * as functions from "firebase-functions";
-import { fetchForMufj } from "./utils/mufj";
+import { fetchMufj } from "./utils/mufj";
 import { getNow } from "./services/dayjs";
 import { postMessage } from "./services/slack";
 
 const postToSlack = async () => {
-  const now = getNow();
-
-  const { name, url, basePrice, dayChange } = await fetchForMufj(
+  const { name, url, basePrice, dayChange } = await fetchMufj(
     "allianceBernstein",
   );
+  const now = getNow();
 
   await postMessage({
     message: [
@@ -25,11 +24,13 @@ const postToSlack = async () => {
         fields: [
           {
             type: "mrkdwn",
-            text: `*基準価額:*\n${basePrice}円`,
+            text: `*基準価額:*\n${basePrice ?? "-"}円`,
           },
           {
             type: "mrkdwn",
-            text: `*前日比:*\n${dayChange}`,
+            text: `*前日比:*\n${
+              dayChange !== null && dayChange > 0 ? "+" : ""
+            }${dayChange ?? "-"}円`,
           },
         ],
       },
@@ -68,7 +69,7 @@ export const scheduledPostToSlack = functions
   .pubsub.schedule("0 18 * * *")
   .onRun(postToSlack);
 
-export const helloWorld = functions
+export const postToSlackFunction = functions
   .region("asia-northeast1")
   .runWith(runtimeOpts)
   .https.onRequest(async (_, response) => {

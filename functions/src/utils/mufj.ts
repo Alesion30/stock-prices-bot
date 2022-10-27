@@ -1,4 +1,5 @@
 import { launch } from "../services/puppeteer";
+import { castSafetyNumber } from "./castSafetyNumber";
 
 export const mufjType: Record<string, { id: string; name: string }> = {
   allianceBernstein: {
@@ -11,13 +12,13 @@ type MufjType = keyof typeof mufjType;
 type MufjData = {
   name: string;
   url: string;
-  basePrice: string | null;
-  dayChange: string | null;
+  basePrice: number | null;
+  dayChange: number | null;
 };
 
 // 三菱UFJ銀行
 // https://fs.bk.mufg.jp
-export const fetchForMufj = async (type: MufjType): Promise<MufjData> => {
+export const fetchMufj = async (type: MufjType): Promise<MufjData> => {
   const { id, name } = mufjType[type];
 
   const browser = await launch();
@@ -48,7 +49,19 @@ export const fetchForMufj = async (type: MufjType): Promise<MufjData> => {
   return {
     name,
     url: targetUrl,
-    basePrice,
-    dayChange,
+    basePrice: castBasePrice(basePrice),
+    dayChange: castDayChange(dayChange),
   };
+};
+
+export const castBasePrice = (textContent: string | null) => {
+  return textContent !== null
+    ? castSafetyNumber(textContent.replace(/,/, ""))
+    : null;
+};
+
+export const castDayChange = (textContent: string | null) => {
+  return textContent !== null
+    ? castSafetyNumber(textContent.replace(/円/, ""))
+    : null;
 };
