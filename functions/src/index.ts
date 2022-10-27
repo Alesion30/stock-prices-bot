@@ -2,10 +2,15 @@ import * as functions from "firebase-functions";
 import { fetchMufj } from "./utils/mufj";
 import { getNow } from "./services/dayjs";
 import { postMessage } from "./services/slack";
+import { launch } from "./services/puppeteer";
 
 const postToSlack = async () => {
+  const browser = await launch();
+  const page = await browser.newPage();
+
   const { name, url, basePrice, dayChange } = await fetchMufj(
     "allianceBernstein",
+    { page },
   );
   const now = getNow();
 
@@ -56,6 +61,8 @@ const postToSlack = async () => {
       },
     ],
   });
+
+  await browser.close();
 };
 
 const runtimeOpts: functions.RuntimeOptions = {

@@ -1,4 +1,4 @@
-import { launch } from "../services/puppeteer";
+import { Page } from "puppeteer";
 import { castSafetyNumber } from "./castSafetyNumber";
 
 export const mufjType: Record<string, { id: string; name: string }> = {
@@ -16,13 +16,17 @@ type MufjData = {
   dayChange: number | null;
 };
 
+type FetchMufjOptions = {
+  page: Page;
+};
+
 // 三菱UFJ銀行
 // https://fs.bk.mufg.jp
-export const fetchMufj = async (type: MufjType): Promise<MufjData> => {
+export const fetchMufj = async (
+  type: MufjType,
+  { page }: FetchMufjOptions,
+): Promise<MufjData> => {
   const { id, name } = mufjType[type];
-
-  const browser = await launch();
-  const page = await browser.newPage();
   const targetUrl = `https://fs.bk.mufg.jp/webasp/mufg/fund/detail/${id}.html`;
   await page.goto(targetUrl);
 
@@ -43,8 +47,6 @@ export const fetchMufj = async (type: MufjType): Promise<MufjData> => {
       const el = document.querySelector(selector);
       return el?.textContent;
     }, dayChangeSelector)) ?? null;
-
-  await browser.close();
 
   return {
     name,
