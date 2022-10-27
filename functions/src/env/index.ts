@@ -13,6 +13,6 @@ export const env: Record<Workspace, Env> = {
     name: "九大P2Pエンジニア",
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     slackWebhookUrl: process.env.SLACK_WEBHOOK_URL_QDAIP2P!,
-    brands: ["allianceBernstein"],
+    brands: ["allianceBernstein", "emaxis"],
   },
 };
