@@ -1,14 +1,24 @@
-import { castBasePrice, castDayChange, fetchMufj, mufjBrands } from "../mufj";
+import {
+  castBasePrice,
+  castDayChange,
+  fetchMufj,
+  MufjBrand,
+  mufjBrands,
+} from "../mufj";
 
 describe("fetchMufj", () => {
   jest.setTimeout(10000);
 
-  it("アライアンス・バーンスタイン・米国成長株投信Ｄコース", async () => {
-    const result = await fetchMufj("allianceBernstein", { browser });
-    expect(result.name).toBe(mufjBrands["allianceBernstein"].name);
-    expect(typeof result.basePrice).toBe("number");
-    expect(typeof result.dayChange).toBe("number");
-  });
+  const brands = Object.keys(mufjBrands) as MufjBrand[];
+  for (const brand of brands) {
+    const brandName = mufjBrands[brand].name;
+    it(brandName, async () => {
+      const result = await fetchMufj(brand, { browser });
+      expect(result.name).toBe(mufjBrands[brand].name);
+      expect(typeof result.basePrice).toBe("number");
+      expect(typeof result.dayChange).toBe("number");
+    });
+  }
 
   it("castBasePrice", async () => {
     expect(castBasePrice("10,000")).toBe(10000);
