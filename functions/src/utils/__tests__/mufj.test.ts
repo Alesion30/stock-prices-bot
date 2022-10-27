@@ -1,9 +1,10 @@
-describe("Google", () => {
-  beforeAll(async () => {
-    await page.goto("https://google.com");
-  });
+import { fetchForMufj, mufjType } from "../mufj";
 
-  it("should be titled Google", async () => {
-    await expect(page.title()).resolves.toMatch("Google");
+describe("fetchForMufj", () => {
+  it("アライアンス・バーンスタイン・米国成長株投信Ｄコース", async () => {
+    const result = await fetchForMufj("allianceBernstein");
+    expect(result.name).toBe(mufjType["allianceBernstein"].name);
+    expect(result.basePrice).not.toBeNull();
+    expect(result.dayChange).not.toBeNull();
   });
 });

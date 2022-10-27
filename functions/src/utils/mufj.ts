@@ -1,6 +1,6 @@
 import { launch } from "../services/puppeteer";
 
-const mufjType: Record<string, { id: string; name: string }> = {
+export const mufjType: Record<string, { id: string; name: string }> = {
   allianceBernstein: {
     id: "m03920420",
     name: "アライアンス・バーンスタイン・米国成長株投信Ｄコース",
