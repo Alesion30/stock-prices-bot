@@ -73,7 +73,7 @@ const runtimeOpts: functions.RuntimeOptions = {
 export const scheduledPostToSlack = functions
   .region("asia-northeast1")
   .runWith(runtimeOpts)
-  .pubsub.schedule("0 5-17/3 * * *") // 9時-21時で3時間おきに実行
+  .pubsub.schedule("0 1-13/3 * * *") // 9時-21時で3時間おきに実行
   .onRun(postToSlack);
 
 export const postToSlackFunction = functions
