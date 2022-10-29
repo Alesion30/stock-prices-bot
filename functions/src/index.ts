@@ -73,7 +73,9 @@ const postToSlack = async (workspace: Workspace, browser: Browser) => {
         type: "section",
         text: {
           type: "plain_text",
-          text: `${getNow().format("YYYY-MM-DD HH:mm")}の株価をお知らせします`,
+          text: `${getNow().format(
+            "YYYY年MM月DD日 HH時mm分",
+          )}の株価をお知らせします`,
         },
       },
     ],
@@ -92,7 +94,7 @@ const runtimeOpts: functions.RuntimeOptions = {
 export const scheduledPostToSlack = functions
   .region("asia-northeast1")
   .runWith(runtimeOpts)
-  .pubsub.schedule("0 */12 * * *") // 12時間おきに実行
+  .pubsub.schedule("0 5,17,23 * * *") // 9,15,21時に実行
   .onRun(async () => {
     const browser = await launch();
     await postToSlackAllWorkspaces(browser);
